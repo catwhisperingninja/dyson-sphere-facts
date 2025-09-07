@@ -1,14 +1,14 @@
 version: '3.8'
 
 services:
-  # Qdrant Vector Database for RAG
+  # Qdrant Vector Database
   qdrant:
     image: qdrant/qdrant:latest
     container_name: dsp-qdrant
     restart: unless-stopped
     ports:
       - "6333:6333"
-      - "6334:6334"  # gRPC port
+      - "6334:6334"
     volumes:
       - ./qdrant_storage:/qdrant/storage
     environment:
@@ -26,7 +26,6 @@ services:
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - QDRANT_URL=http://qdrant:6333
-      - QDRANT_API_KEY=${QDRANT_API_KEY:-}
       - NODE_ENV=production
     ports:
       - "3001:3000"
@@ -34,32 +33,10 @@ services:
       - qdrant
     volumes:
       - ../docs:/app/docs:ro
-      - ./mcp-ragdocs-data:/app/data
     networks:
       - dsp-network
 
-  # Alternative: Local directory-based RAG with Gemini
-  mcp-docs-rag:
-    image: node:18-alpine
-    container_name: dsp-mcp-docs-rag
-    restart: unless-stopped
-    working_dir: /app
-    command: sh -c "npm install -g @kazuph/mcp-docs-rag && mcp-docs-rag"
-    environment:
-      - DOCS_PATH=/docs
-      - GEMINI_API_KEY=${GEMINI_API_KEY}
-      - NODE_ENV=production
-    ports:
-      - "3002:3000"
-    volumes:
-      - ../docs:/docs:ro
-      - ./mcp-docs-rag-data:/app/data
-    networks:
-      - dsp-network
-
-  # Brave Search MCP Server (when available)
-  # Note: This is a placeholder - you may need to build a custom image
-  # or use an alternative search MCP server
+  # MCP Web Search Server
   mcp-web-search:
     image: node:18-alpine
     container_name: dsp-mcp-search
@@ -74,35 +51,7 @@ services:
     networks:
       - dsp-network
 
-  # n8n instance (optional - if you want to run it in Docker instead of VM)
-  # Uncomment if you prefer Docker deployment
-  # n8n:
-  #   image: n8nio/n8n:latest
-  #   container_name: dsp-n8n
-  #   restart: unless-stopped
-  #   ports:
-  #     - "5678:5678"
-  #   environment:
-  #     - N8N_BASIC_AUTH_ACTIVE=true
-  #     - N8N_BASIC_AUTH_USER=${N8N_USER:-admin}
-  #     - N8N_BASIC_AUTH_PASSWORD=${N8N_PASSWORD:-admin}
-  #     - N8N_HOST=0.0.0.0
-  #     - N8N_PORT=5678
-  #     - N8N_PROTOCOL=http
-  #     - NODE_ENV=production
-  #     - WEBHOOK_URL=http://localhost:5678/
-  #   volumes:
-  #     - ./n8n_data:/home/node/.n8n
-  #   networks:
-  #     - dsp-network
-
 networks:
   dsp-network:
     driver: bridge
     name: dsp-network
-
-volumes:
-  qdrant_storage:
-  mcp-ragdocs-data:
-  mcp-docs-rag-data:
-  # n8n_data:  # Uncomment if using n8n in Docker
