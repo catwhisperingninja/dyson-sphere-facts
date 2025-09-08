@@ -1,0 +1,12 @@
+{
+	"mcpServers": {
+		"content-ai-tools-dyson-sphere-": {
+			"command": "npx",
+			"args": [
+				"-y",
+				"@sequa-ai/sequa-mcp@latest",
+				"https://mcp.sequa.ai/v1/o/suchwow/p/content-ai-tools/r/github+catwhisperingninja+dyson-sphere-facts/code-assistant"
+			]
+		}
+	}
+}
