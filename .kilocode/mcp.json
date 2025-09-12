@@ -1,0 +1,27 @@
+{
+  "mcpServers": {
+    "time": {
+      "command": "uvx",
+      "args": [
+        "mcp-server-time"
+      ]
+    },
+    "memory": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-memory"
+      ]
+    },
+    "browserbase": {
+      "command": "npx",
+      "args": [
+        "@browserbasehq/mcp"
+      ],
+      "env": {
+        "BROWSERBASE_API_KEY": "bb_live_TaZSYJW-f4VFVISdk6kP7xyHP-w",
+        "BROWSERBASE_PROJECT_ID": "386203ce-8c8d-4148-8c8a-2d3c0dc2ed1d"
+      }
+    }
+  }
+}
