@@ -2,7 +2,7 @@
 
 ## Relevant Files
 
-### n8n Configuration & Workflows
+### Docker Desktop & Workflows
 - `~/.n8n/workflows/dsp-agent-workflow.json` - Main n8n workflow definition
 - `~/.n8n/credentials.json` - API credentials storage (auto-managed by n8n)
 - `docker-compose.yml` - Docker setup for n8n (if using Docker deployment)

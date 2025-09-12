@@ -9,26 +9,26 @@ This is a DSP (Dyson Sphere Program) Documentation & Physics Speculation Agent t
 ## Architecture
 
 **Deployment Setup:**
-- **n8n** runs on Parallels Mac VM (Node.js system)
-- **MCP servers** run in Docker containers on separate host
-- **Communication** via SSH Execute Command nodes in n8n
-- **Auto-restart scripts** handle frequent MCP server relaunches
+- **Claudable** chatbot interface (Node.js) 
+- **MCP servers** run in Docker containers locally via Docker Desktop
+- **Communication** via direct HTTP calls to localhost MCP servers
+- **[ORCHESTRATION: Future enhancement point for workflow management]**
 
 **Core Components:**
-- n8n visual workflows for agent orchestration
-- MCP RAG server (mcp-ragdocs) for DSP documentation search
-- MCP Brave Search server for physics research
+- Claudable chatbot for user interface and agent coordination
+- MCP RAG server (mcp-ragdocs) for DSP documentation search  
+- MCP Web Search server for physics research
 - Claude 3.5 Sonnet as primary LLM via Anthropic API
 
 ## Key Commands
 
-### n8n Operations
+### Claudable Operations
 ```bash
-# Start n8n (on Parallels VM)
-npx n8n
+# Start Claudable chatbot
+cd claudable && npm start
 
-# Access n8n interface
-open http://localhost:5678
+# Configure Claudable
+edit claudable/config.json
 ```
 
 ### MCP Server Management (on Docker host via SSH)
@@ -43,7 +43,7 @@ docker-compose down && docker-compose up -d
 docker exec mcp-ragdocs-container npx @hannesrudolph/mcp-ragdocs search 'Critical Photons'
 ```
 
-### SSH Commands (from n8n)
+### SSH Commands ([ORCHESTRATION: Future workflow management])
 ```bash
 # Example MCP query via SSH Execute Command
 ssh docker-host "docker exec mcp-ragdocs-container npx @hannesrudolph/mcp-ragdocs search 'Critical Photons'"
@@ -57,8 +57,8 @@ ssh docker-host "docker exec mcp-ragdocs-container npx @hannesrudolph/mcp-ragdoc
 - `overall-dsp-tasks.md` - High-level task overview
 - `setup.sh` - Setup script for SSH commands
 
-**n8n Workflows (stored internally by n8n):**
-- Main workflow: "DSP Documentation Agent" 
+**[WORKFLOW: Visual vs code-based workflow management]:**
+- [PLACEHOLDER: Future workflow orchestration system]
 - Export workflows as JSON for version control
 
 **Planned Structure:**
@@ -78,7 +78,7 @@ The agent blends game mechanics with real physics speculation in a fun, engaging
 
 ## Development Workflow
 
-1. **n8n Visual Development** - Most configuration happens in n8n's visual interface
+1. **[WORKFLOW: Visual vs code-based approach]** - Future workflow orchestration system
 2. **MCP Server Setup** - Deploy and configure via Docker on separate host
 3. **SSH Integration** - Use SSH Execute Command nodes to communicate with MCP servers
 4. **Documentation Ingestion** - Scrape DSP wikis and ingest into RAG system
@@ -88,6 +88,6 @@ The agent blends game mechanics with real physics speculation in a fun, engaging
 
 Since MCP servers require frequent restarts:
 - Use restart scripts on Docker host
-- Implement health checks in n8n workflows  
+- [RESILIENCE: Auto-restart strategy needed] - Implement health checks in future workflow system
 - Configure auto-restart policies for Docker containers
 - Keep backup/restore procedures for workflows and documentation
