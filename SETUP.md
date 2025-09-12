@@ -3,227 +3,198 @@
 ## Architecture Overview
 
 ```
-Parallels VM (Node.js/n8n)
-    ↓ SSH
-Docker Host Mac (MCP Servers in Docker)
+Claudable Interface (Node.js)
+    ↓ HTTP
+Docker Desktop (MCP Servers)
     ↓
-Response back to n8n → User
+Response back to Claudable → User
 ```
 
 ## Prerequisites
 
-### On Mac Host (Docker Desktop)
+### System Requirements
 
 - Docker Desktop installed and running
-- SSH access enabled (System Preferences → Sharing → Remote Login)
-- Git installed
-
-### On Parallels VM
-
 - Node.js 18+ installed
-- n8n installed (`npm install -g n8n`)
-- SSH key pair generated (`ssh-keygen -t rsa`)
+- Git installed
+- API Keys:
+  - ANTHROPIC_API_KEY (for Claude)
+  - BRAVE_API_KEY (for web search)
+  - OPENAI_API_KEY (for embeddings)
 
-## Step 1: Setup Docker MCP Servers (Mac Host)
+## Step 1: Setup Docker MCP Servers
 
 1. **Navigate to project directory:**
 
 ```bash
-cd /Users/laura/Documents/github-projects/dyson-sphere-facts
+cd /path/to/dyson-sphere-facts
 ```
 
-2. **Copy and configure environment (ONE .env file at project root):**
+2. **Configure environment:**
 
 ```bash
-cp docker/.env.template .env
-# Edit .env with your API keys:
+# Copy environment template
+cp docker/.env.template docker/.env
+# Edit docker/.env with your API keys:
 # - OPENAI_API_KEY (for embeddings)
 # - ANTHROPIC_API_KEY (for Claude)
 # - BRAVE_API_KEY (for web search)
 ```
 
-3. **Make scripts executable:**
+3. **Start MCP servers:**
 
 ```bash
-chmod +x manage-mcp.sh health-check.sh mcp-query.sh
+cd docker
+docker-compose up -d
 ```
 
-4. **Start MCP servers:**
+4. **Verify services are running:**
 
 ```bash
-./manage-mcp.sh start
-```
-
-5. **Verify services are running:**
-
-```bash
-./manage-mcp.sh status
+../tools/docker-enum.sh
 ```
 
 You should see:
 
 - Qdrant UI at http://localhost:6333/dashboard
-- MCP services on ports 3001, 3002, 3003
+- MCP RAG server on port 3002
+- MCP Search server on port 3003
 
-## Step 2: Setup SSH Access (Parallels VM → Mac)
+## Step 2: Setup Claudable Interface
 
-1. **On Parallels VM, copy SSH key to Mac host:**
-
-```bash
-ssh-copy-id laura@host.docker.internal
-# Or use the Mac's IP address
-ssh-copy-id laura@192.168.x.x
-```
-
-2. **Test SSH connection:**
+1. **Install Claudable dependencies:**
 
 ```bash
-ssh laura@host.docker.internal "docker ps"
+cd claudable
+npm install
 ```
 
-3. **Test MCP query wrapper:**
+2. **Configure Claudable:**
+
+The `config.json` file defines MCP server endpoints:
+
+```json
+{
+  "mcp_servers": {
+    "rag": "http://localhost:3002",
+    "search": "http://localhost:3003"
+  },
+  "claude": {
+    "api_key": "${ANTHROPIC_API_KEY}"
+  }
+}
+```
+
+3. **Test MCP server connectivity:**
 
 ```bash
-ssh laura@host.docker.internal "/Users/laura/Documents/github-projects/dyson-sphere-facts/docker/mcp-query.sh health"
+# Verify Docker containers are running
+../tools/docker-enum.sh
+# Test endpoints directly
+curl http://localhost:3002/health
+curl http://localhost:3003/health
 ```
 
-## Step 3: Setup n8n (Parallels VM)
+## Step 3: Start Claudable Agent
 
-1. **Start n8n:**
+1. **Start Claudable:**
 
 ```bash
-# Basic start
-n8n start
-
-# Or with custom port and basic auth
-N8N_PORT=5678 \
-N8N_BASIC_AUTH_ACTIVE=true \
-N8N_BASIC_AUTH_USER=admin \
-N8N_BASIC_AUTH_PASSWORD=yourpassword \
-n8n start
+cd claudable
+npm start
 ```
 
-2. **Access n8n:** Open browser to `http://localhost:5678`
+2. **Access the interface:**
 
-3. **Configure credentials in n8n UI:**
+Claudable will start a web interface (check console output for URL).
 
-   a. Go to Credentials → New
+3. **Environment variables:**
 
-   b. Create "SSH" credential named "dockerHost":
+Ensure your environment has the required API keys:
 
-   - Host: `host.docker.internal` (or Mac IP)
-   - Port: 22
-   - Username: `laura`
-   - Private Key: (paste contents of `~/.ssh/id_rsa`)
+```bash
+export ANTHROPIC_API_KEY="your-key-here"
+export BRAVE_API_KEY="your-key-here"
+export OPENAI_API_KEY="your-key-here"
+```
 
-   c. Create "Anthropic" credential:
+4. **Test the agent:**
 
-   - API Key: (your Anthropic API key)
-
-4. **Import workflow:**
-
-   - In n8n, go to Workflows → Import
-   - Upload `/n8n/dsp-agent-workflow.json`
-   - Or copy-paste the JSON content
-
-5. **Test the workflow:**
-   - Click "Execute Workflow"
-   - Use test node to send: `{"query": "What are Critical Photons?"}`
+Try queries like:
+- "What are Critical Photons in DSP?"
+- "Could we actually build a Dyson sphere?"
+- "Compare game antimatter to real physics"
 
 ## Step 4: Ingest DSP Documentation
 
-1. **Download DSP wiki content** (on Mac host):
+1. **[ORCHESTRATION: Future enhancement - Automated documentation scraping]**
+
+2. **Manual document ingestion:**
 
 ```bash
-cd /Users/laura/Documents/github-projects/dyson-sphere-facts/docs
-
-# Example: Download key pages
-curl -o dyson-sphere.md "https://dsp-wiki.com/Dyson_Sphere?action=raw"
-curl -o critical-photons.md "https://dsp-wiki.com/Critical_Photon?action=raw"
-curl -o antimatter.md "https://dsp-wiki.com/Antimatter?action=raw"
-# Add more pages as needed
+# Documents can be ingested via the RAG MCP server
+# Direct API calls or through Claudable interface
+# See MCP server documentation for ingestion methods
 ```
 
-2. **Ingest into RAG system:**
+3. **Verify ingestion:**
 
 ```bash
-# Use the MCP server to add documents
-cd ../docker
-./mcp-query.sh add "https://dsp-wiki.com/Dyson_Sphere" "Dyson Sphere"
-./mcp-query.sh add "https://dsp-wiki.com/Critical_Photon" "Critical Photons"
-# Or batch ingest local files
+# Check Qdrant dashboard for document collections
+open http://localhost:6333/dashboard
 ```
 
 ## Step 5: Configure Auto-Restart (Optional)
 
-1. **On Mac host, add cron job for health checks:**
+1. **[RESILIENCE: Future enhancement - Auto-restart strategy needed]**
+
+2. **Docker auto-restart policies:**
 
 ```bash
-crontab -e
-# Add this line (runs every 5 minutes):
-*/5 * * * * /Users/laura/Documents/github-projects/dyson-sphere-facts/docker/health-check.sh >> /Users/laura/Documents/github-projects/dyson-sphere-facts/logs/health.log 2>&1
+# Docker containers already configured with restart policies
+# See docker/docker-compose.yml for current settings
 ```
 
-2. **On Parallels VM, auto-start n8n:**
+3. **Manual restart commands:**
 
 ```bash
-# Create systemd service (Linux) or launchd plist (Mac VM)
-# Example for Mac VM with launchd:
-cat > ~/Library/LaunchAgents/com.dsp.n8n.plist << EOF
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-    <key>Label</key>
-    <string>com.dsp.n8n</string>
-    <key>ProgramArguments</key>
-    <array>
-        <string>/usr/local/bin/n8n</string>
-        <string>start</string>
-    </array>
-    <key>RunAtLoad</key>
-    <true/>
-    <key>KeepAlive</key>
-    <true/>
-    <key>StandardOutPath</key>
-    <string>/tmp/n8n.log</string>
-    <key>StandardErrorPath</key>
-    <string>/tmp/n8n.error.log</string>
-</dict>
-</plist>
-EOF
+# Restart all MCP servers
+cd docker
+docker-compose restart
 
-launchctl load ~/Library/LaunchAgents/com.dsp.n8n.plist
+# Restart specific services
+docker-compose restart qdrant
+docker-compose restart mcp-ragdocs
 ```
 
 ## Step 6: Test the Complete System
 
-1. **Via n8n Chat Interface:**
+1. **Via Claudable Interface:**
 
-   - Open n8n workflow
-   - Click on Chat Trigger node
-   - Select "Test Chat"
-   - Try queries like:
+   - Open your browser to Claudable's web interface
+   - Try test queries:
      - "How do Critical Photons work in DSP?"
      - "Could we actually build a Dyson sphere?"
      - "Compare game antimatter to real physics"
 
-2. **Via Webhook API:**
+2. **Direct API testing:**
 
 ```bash
-curl -X POST http://localhost:5678/webhook/dsp-agent \
+# Test MCP servers directly
+curl -X POST http://localhost:3002/query \
   -H "Content-Type: application/json" \
-  -d '{"query": "What would it cost to build a real Dyson sphere?"}'
+  -d '{"query": "Critical Photons"}'
 ```
 
 3. **Check logs if issues:**
 
 ```bash
-# On Mac host:
-./docker/manage-mcp.sh logs
+# Docker container logs
+docker-compose logs -f
 
-# On Parallels VM:
-tail -f ~/.n8n/logs/n8n.log
+# Specific service logs
+docker-compose logs mcp-ragdocs
+docker-compose logs qdrant
 ```
 
 ## Troubleshooting
@@ -235,19 +206,14 @@ tail -f ~/.n8n/logs/n8n.log
 - Check API keys in `.env` file
 - Review logs: `docker-compose logs`
 
-### SSH Connection Fails
+### Claudable Connection Issues
 
-- Verify Remote Login enabled on Mac
-- Check firewall settings
-- Test with: `ssh -v laura@host.docker.internal`
-- Try using IP instead of hostname
+- Verify Docker containers are running: `docker ps`
+- Check MCP server health endpoints
+- Verify API keys are set correctly
+- Test direct HTTP connections to MCP servers
 
-### n8n Workflow Errors
-
-- Check credentials are configured correctly
-- Verify SSH key has correct permissions (600)
-- Test MCP wrapper manually first
-- Enable verbose logging in n8n
+### [ORCHESTRATION: Future workflow management troubleshooting]
 
 ### RAG Returns No Results
 
@@ -289,10 +255,10 @@ docker/manage-mcp.sh status    # Check all services
 docker/manage-mcp.sh restart   # Restart all services
 docker/manage-mcp.sh logs      # View all logs
 
-# Parallels VM - n8n
-n8n start                      # Start n8n
-n8n export:workflow --all      # Export all workflows
-n8n import:workflow            # Import workflow
+# Claudable Management
+cd claudable && npm start       # Start Claudable
+npm install                    # Install dependencies
+npm run dev                    # Development mode
 
 # Testing MCP
 docker/mcp-query.sh rag "Critical Photons"

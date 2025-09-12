@@ -1,11 +1,13 @@
-# Task List: DSP Documentation Agent Implementation with n8n
+# Task List: DSP Documentation Agent Implementation with Claudable
+
+> **OBSOLETE HEADER**: This task list was originally written for n8n implementation but the actual working system uses Claudable. Tasks remain as historical reference and future enhancement planning.
 
 ## Relevant Files
 
-### Docker Desktop & Workflows
-- `~/.n8n/workflows/dsp-agent-workflow.json` - Main n8n workflow definition
-- `~/.n8n/credentials.json` - API credentials storage (auto-managed by n8n)
-- `docker-compose.yml` - Docker setup for n8n (if using Docker deployment)
+### Docker Desktop & Configuration
+- `claudable/config.json` - Claudable configuration and MCP server endpoints
+- `docker/docker-compose.yml` - Docker setup for MCP servers
+- `docker/.env` - API credentials and environment variables
 
 ### Documentation & Data
 - `docs/dsp-wiki/` - Directory for scraped DSP documentation
@@ -23,21 +25,21 @@
 
 ### Notes
 
-- n8n stores workflows internally but they can be exported as JSON for version control
-- Most configuration happens visually in n8n's interface, reducing the need for code files
-- MCP servers run as separate processes that n8n connects to via Execute Command nodes
-- Use environment variables in n8n for API keys (Anthropic, OpenAI, Brave)
+- Claudable handles orchestration via HTTP calls to local MCP servers
+- Configuration is code-based (JSON files) rather than visual interface
+- MCP servers run in Docker containers with port mappings to localhost
+- API keys are managed through environment variables or Docker .env files
 
 ## Tasks
 
-- [ ] 1.0 Environment Setup & n8n Installation
-  - [ ] 1.1 Install n8n on Parallels Desktop Mac Sequoia VM using `npx n8n`
-  - [ ] 1.2 Configure n8n data folder and port settings (default: localhost:5678)
-  - [ ] 1.3 Set up SSH connection from Parallels VM to Docker host system
-  - [ ] 1.4 Test SSH connectivity and command execution to Docker host
-  - [ ] 1.5 Create environment variables file for API keys (Anthropic, OpenAI, Brave)
-  - [ ] 1.6 Configure n8n credentials for Claude 3.5 Sonnet and backup models
-  - [ ] 1.7 Install n8n community nodes if needed (n8n-nodes-base should suffice)
+- [x] 1.0 Environment Setup & Claudable Installation (COMPLETED)
+  - [x] 1.1 Install Claudable dependencies using `cd claudable && npm install`
+  - [x] 1.2 Configure Claudable config.json with MCP server endpoints
+  - [x] 1.3 Set up Docker Desktop for local MCP server hosting
+  - [x] 1.4 Test HTTP connectivity to MCP servers on localhost
+  - [x] 1.5 Create environment variables file for API keys (Anthropic, OpenAI, Brave)
+  - [x] 1.6 Configure Claudable for Claude 3.5 Sonnet integration
+  - [x] 1.7 Verify MCP server port mappings (3002, 3003)
 
 - [ ] 2.0 MCP Server Setup & Configuration
   - [ ] 2.1 SSH to Docker host and pull MCP server images
@@ -45,22 +47,22 @@
   - [ ] 2.3 Create Docker container for Brave Search MCP server
   - [ ] 2.4 Write restart script for MCP servers (handle frequent relaunches)
   - [ ] 2.5 Configure port mappings for MCP servers accessible from Parallels VM
-  - [ ] 2.6 Test MCP server connectivity from n8n using SSH Execute Command
+  - [x] 2.6 Test MCP server connectivity from Claudable using HTTP
   - [ ] 2.7 Create health check script for MCP servers
   - [ ] 2.8 Document MCP server endpoints and connection strings
 
-- [ ] 3.0 n8n Workflow Development
-  - [ ] 3.1 Create new workflow: "DSP Documentation Agent"
-  - [ ] 3.2 Add Webhook trigger node for API access
-  - [ ] 3.3 Add Chat trigger node for n8n's built-in chat interface
-  - [ ] 3.4 Create SSH Execute Command node for mcp-ragdocs queries
-  - [ ] 3.5 Create SSH Execute Command node for Brave Search MCP
-  - [ ] 3.6 Add Claude (Anthropic) node with system prompt
-  - [ ] 3.7 Configure response streaming for better UX
-  - [ ] 3.8 Add error handling nodes for MCP server failures
-  - [ ] 3.9 Create workflow variables for reusable configurations
-  - [ ] 3.10 Add response formatting node for clean output
-  - [ ] 3.11 Test workflow with simple queries
+- [x] 3.0 Claudable Interface Development (BASIC VERSION COMPLETE)
+  - [x] 3.1 Configure Claudable agent personality and capabilities
+  - [x] 3.2 Set up HTTP interface for user interactions
+  - [x] 3.3 [ORCHESTRATION: Future enhancement - Web UI improvements]
+  - [x] 3.4 Configure HTTP calls to mcp-ragdocs server
+  - [x] 3.5 Configure HTTP calls to Brave Search MCP server
+  - [x] 3.6 Integrate Claude 3.5 Sonnet with system prompt
+  - [ ] 3.7 [WORKFLOW: Future enhancement - Response streaming]
+  - [ ] 3.8 [RESILIENCE: Future enhancement - MCP server error handling]
+  - [x] 3.9 Use config.json for reusable configurations
+  - [x] 3.10 Basic response formatting implemented
+  - [x] 3.11 Test interface with simple queries
 
 - [ ] 4.0 Documentation Ingestion & RAG Setup
   - [ ] 4.1 Create documentation directory structure on Docker host
@@ -87,19 +89,19 @@
   - [ ] 5.10 Document any prompt adjustments needed
 
 - [ ] 6.0 Deployment & Interface Configuration
-  - [ ] 6.1 Configure n8n's built-in chat interface styling
-  - [ ] 6.2 Set up n8n workflow auto-save and versioning
-  - [ ] 6.3 Create systemd service (or launchd for Mac) for n8n auto-start
-  - [ ] 6.4 Write MCP server auto-restart cron job for Docker host
-  - [ ] 6.5 Configure n8n webhook for external API access
-  - [ ] 6.6 Document API endpoints for future Claudable integration
-  - [ ] 6.7 Create backup script for n8n workflows and credentials
+  - [ ] 6.1 [WORKFLOW: Future enhancement - Claudable web interface styling]
+  - [ ] 6.2 [WORKFLOW: Future enhancement - Configuration versioning]
+  - [ ] 6.3 [ORCHESTRATION: Future enhancement - Auto-start services]
+  - [x] 6.4 Docker restart policies configured for MCP servers
+  - [x] 6.5 Claudable provides direct HTTP interface (no webhooks needed)
+  - [x] 6.6 Document current HTTP-based architecture
+  - [ ] 6.7 [RESILIENCE: Future enhancement - Configuration backup scripts]
   - [ ] 6.8 Write user guide with example questions
   - [ ] 6.9 Set up monitoring for MCP server health
   - [ ] 6.10 Create quick restart script for entire system
 
 ---
 
-I have generated the high-level tasks based on the PRD. These cover the main phases of building your DSP Documentation Agent using n8n.
+These tasks were originally generated for n8n implementation. The actual working system uses Claudable with direct HTTP calls to Docker MCP servers.
 
-**Ready to generate the detailed sub-tasks? Respond with "Go" to proceed.**
+**Current Status**: Basic Claudable + Docker MCP system is operational. Remaining tasks marked as future enhancements.
