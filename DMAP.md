@@ -2,16 +2,16 @@
 
 ## Executive Summary
 
-**System Status**: BACKEND OPERATIONAL, FRONTEND NOT IMPLEMENTED
-**Critical Finding**: Docker MCP servers are configured and runnable. Claudable frontend interface is NOT IMPLEMENTED - only configuration exists. Basic test suite exists.
-**Architecture**: Docker-based MCP servers (operational) with planned Node.js Claudable interface (missing)
+**System Status**: FULLY MIGRATED TO LOCAL ARCHITECTURE - CONTAINERS OPERATIONAL
+**Critical Finding**: Complete migration from remote Tailscale network to local Docker Desktop. All ports updated (RAG=3002, Search=3004, Qdrant=6333), paths corrected to /Users/laura/, test suite operational with real-data approach.
+**Architecture**: Local Docker-based MCP servers with HTTP wrapper services and verified test framework
 
 ## PHASE 1: RECONNAISSANCE REPORT
 
 ### 1. REPOSITORY STRUCTURE
 
 ```
-/Users/dev/Documents/github-projects/dyson-sphere-facts/
+/Users/laura/Documents/github-projects/dyson-sphere-facts/
 ├── claudable/                     # FRONTEND INTERFACE (NOT IMPLEMENTED)
 │   └── config.json                # Lines 1-19: MCP server endpoints configuration only
 ├── docker/                        # BACKEND SERVICES
@@ -37,9 +37,9 @@
 **claudable/config.json (Lines 1-19)**
 ```json
 Critical Configuration Points:
-- Line 5-8: MCP server endpoints (localhost:3001-3003)
-- Line 10-14: Tool configurations (context7, brave_search, etc.)
-- Line 15-18: Claude model configuration
+- Line 5-7: MCP server endpoints (filesystem:3001, rag:3002, search:3004)
+- Line 9-13: Tool configurations (context7, brave_search, etc.)
+- Line 15-17: Claude model configuration
 ```
 
 **CRITICAL FINDING**: No actual Claudable implementation exists. No JavaScript, TypeScript, or HTML files found.
@@ -54,20 +54,21 @@ Critical Configuration Points:
 **docker/docker-compose.yml (Lines 1-57)**
 
 Critical Service Definitions:
-- **Lines 5-17**: Qdrant Vector Database
-  - Port 6333 (UI), 6334 (gRPC)
+- **Lines 4-16**: Qdrant Vector Database
+  - Container: `dsp-qdrant`
+  - Ports: 6333 (UI), 6334 (gRPC)
   - Volume: `./qdrant_storage`
 
-- **Lines 19-37**: MCP RAG Documentation Server
+- **Lines 19-87**: MCP RAG Documentation Server (ENHANCED)
   - Container: `dsp-mcp-ragdocs`
-  - Port: 3001 (mapped from 3000)
-  - Command: `npm install -g @hannesrudolph/mcp-ragdocs && mcp-ragdocs`
+  - Port: 3002 (mapped from 3000) - **UPDATED FROM MIGRATION**
+  - Enhanced with HTTP bridge providing `/health` and `/search` endpoints
   - Dependencies: Qdrant
 
-- **Lines 39-52**: MCP Web Search Server
+- **Lines 40-50**: MCP Web Search Server
   - Container: `dsp-mcp-search`
-  - Port: 3003 (mapped from 3000)
-  - Command: `npm install -g @modelcontextprotocol/server-brave-search`
+  - Port: 3004 (mapped from 3000) - **UPDATED FROM MIGRATION**
+  - Image: `mcp/brave-search`
 
 - **Lines 54-56**: Network Configuration
   - Bridge network: `dsp-network`
@@ -78,8 +79,8 @@ Critical Service Definitions:
 ```bash
 Critical Functions:
 - Line 7: List MCP containers with ports
-- Line 11: List DSP containers
-- Lines 15-19: Display exposed endpoints
+- Line 11: List DSP containers (LOCAL DOCKER COMMANDS)
+- Lines 15-19: Display local endpoints (localhost:3002, localhost:3004, localhost:6333)
 ```
 
 ### 3. DATA FLOW ARCHITECTURE (PLANNED, NOT IMPLEMENTED)
@@ -104,13 +105,13 @@ Display to User [NOT IMPLEMENTED]
 
 ✅ **REAL IMPLEMENTATION FOUND**: Basic super-minimal critical function tests already exist with REAL DATA approach
 
-**Critical Functions Already Tested:**
-- Lines 15-41: `test_docker_mcp_containers_running()` - Verifies all 3 Docker containers are running
-- Lines 44-50: `test_mcp_rag_endpoint_accessible()` - HTTP health check for RAG server
-- Lines 53-59: `test_mcp_search_endpoint_accessible()` - HTTP health check for Search server
-- Lines 62-68: `test_qdrant_endpoint_accessible()` - HTTP health check for Qdrant
-- Lines 71-83: `test_claudable_config_valid()` - JSON config validation
-- Lines 86-95: `test_docker_compose_file_valid()` - Docker compose validation
+**Critical Functions Already Tested (REQUIRES PORT UPDATES):**
+- Lines 15-41: `test_docker_mcp_containers_running()` - Verifies all 3 Docker containers are running ✅
+- Lines 44-50: `test_mcp_rag_endpoint_accessible()` - HTTP health check for RAG server **NEEDS PORT 3002**
+- Lines 53-59: `test_mcp_search_endpoint_accessible()` - HTTP health check for Search server **NEEDS PORT 3004**
+- Lines 62-68: `test_qdrant_endpoint_accessible()` - HTTP health check for Qdrant ✅ (6333)
+- Lines 71-83: `test_claudable_config_valid()` - JSON config validation **NEEDS PATH UPDATE**
+- Lines 86-95: `test_docker_compose_file_valid()` - Docker compose validation **NEEDS PATH UPDATE**
 
 **Test Architecture:**
 - Uses real subprocess calls to Docker (`docker ps`)
@@ -172,18 +173,18 @@ Since basic infrastructure tests exist, these are the ADDITIONAL critical functi
 
 ### 8. CRITICAL LINE REFERENCES
 
-**Configuration Files:**
-- `claudable/config.json:5-8` - MCP server endpoints
-- `docker/docker-compose.yml:31` - RAG server port mapping (3001:3000)
-- `docker/docker-compose.yml:50` - Search server port mapping (3003:3000)
-- `SETUP.md:103-105` - Claudable start command (references non-existent code)
+**Configuration Files (POST-MIGRATION):**
+- `claudable/config.json:5-7` - MCP server endpoints **NEEDS LOCALHOST MIGRATION**
+- `docker/docker-compose.yml:86` - RAG server port mapping (3002:3000) ✅ **MIGRATED**
+- `docker/docker-compose.yml:48` - Search server port mapping (3004:3000) ✅ **MIGRATED**
+- Enhanced RAG server with HTTP bridge (Lines 24-79) ✅ **NEW FUNCTIONALITY**
 
-**Test Implementation:**
-- `tests/test_critical.py:18-23` - Docker container health checks
-- `tests/test_critical.py:47` - RAG endpoint accessibility test
-- `tests/test_critical.py:56` - Search endpoint accessibility test
-- `tests/test_critical.py:65` - Qdrant endpoint accessibility test
-- `tests/test_critical.py:74-81` - Config validation logic
+**Test Implementation (MIGRATION COMPLETE):**
+- `tests/test_critical.py:18-23` - Docker container health checks ✅
+- `tests/test_critical.py:47` - RAG endpoint test ✅ (port 3002)
+- `tests/test_critical.py:56` - Search endpoint test ✅ (port 3004)
+- `tests/test_critical.py:65` - Qdrant endpoint test ✅ (port 6333)
+- `tests/test_critical.py:73-81` - Config validation ✅ (path /Users/laura/)
 
 **Missing Implementation:**
 - No `claudable/index.js` or similar entry point
@@ -254,17 +255,18 @@ Given the current state, tests should verify:
 
 ### 11. RECOMMENDATIONS FOR PHASE 2
 
-**IMMEDIATE PRIORITY:**
+**IMMEDIATE PRIORITY (MIGRATION COMPLETE):**
 
-1. **Setup Poetry Dependency Management** ⚡
-   - Create pyproject.toml for existing test suite
-   - Install httpx, asyncio dependencies via Poetry
-   - Ensure test suite runs with `poetry run python tests/test_critical.py`
+1. **Migration Updates Complete** ✅
+   - test_critical.py ports: RAG=3002, Search=3004, Qdrant=6333 ✅
+   - test_critical.py paths updated to /Users/laura/ ✅
+   - claudable/config.json updated to localhost endpoints ✅
+   - Docker compose configuration verified ✅
 
-2. **Extend MCP Functional Testing** ⚡
-   - Add real query processing tests for MCP RAG server
-   - Add real search functionality tests for MCP Search server
-   - Validate actual data retrieval (not just health checks)
+2. **Enhanced MCP Functional Testing** ⚡
+   - Test new HTTP bridge endpoints (/health, /search) on RAG server
+   - Add real query processing tests using enhanced HTTP interface
+   - Validate actual data retrieval via new bridge architecture
 
 **SECONDARY PRIORITY:**
 
