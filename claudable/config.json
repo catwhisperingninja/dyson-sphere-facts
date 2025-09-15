@@ -2,7 +2,6 @@
 	"name": "dsp-agent",
 	"version": "1.0.0",
 	"mcp_servers": {
-		"filesystem": "http://localhost:3001",
 		"rag": "http://localhost:3002",
 		"search": "http://localhost:3004"
 	},
@@ -13,7 +12,7 @@
 		"knowledge_graph": true
 	},
 	"claude": {
-		"model": "claude-3-5-sonnet",
+		"model": "claude-3-5-sonnet-20241022",
 		"api_key": "${ANTHROPIC_API_KEY}"
 	}
 }

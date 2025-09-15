@@ -86,10 +86,8 @@ class MCPClient {
 
   async search(query, options = {}) {
     try {
-      const response = await this.axios.post(`${this.baseURL}/search`, {
-        query,
-        ...options
-      });
+      const params = new URLSearchParams({ query, ...options });
+      const response = await this.axios.get(`${this.baseURL}/search?${params}`);
       return response.data;
     } catch (error) {
       throw new Error(`${this.serverName} search failed: ${error.message}`);
@@ -120,6 +118,43 @@ async function callClaude(messages, system = SYSTEM_PROMPT) {
 }
 
 // Routes
+
+// Root route - serve HTML UI
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// API documentation endpoint
+app.get('/api', (req, res) => {
+  res.json({
+    name: resolvedConfig.name,
+    version: resolvedConfig.version,
+    description: 'DSP Documentation & Physics Speculation Agent API',
+    endpoints: {
+      'GET /': 'Web UI interface',
+      'GET /api': 'This API documentation',
+      'GET /health': 'Health check for all services',
+      'GET /config': 'Configuration overview',
+      'POST /chat': 'Main chat endpoint - send {"message": "your question"}'
+    },
+    examples: [
+      {
+        description: 'Ask about DSP game mechanics',
+        curl: `curl -X POST http://localhost:${PORT}/chat -H "Content-Type: application/json" -d '{"message":"How do Critical Photons work in DSP?"}'`
+      },
+      {
+        description: 'Ask about real physics',
+        curl: `curl -X POST http://localhost:${PORT}/chat -H "Content-Type: application/json" -d '{"message":"Could we actually build a real Dyson sphere?"}'`
+      },
+      {
+        description: 'Hybrid game/physics question',
+        curl: `curl -X POST http://localhost:${PORT}/chat -H "Content-Type: application/json" -d '{"message":"Compare DSP antimatter production to real physics"}'`
+      }
+    ],
+    status: 'running',
+    timestamp: new Date().toISOString()
+  });
+});
 
 // Health check
 app.get('/health', async (req, res) => {
