@@ -28,8 +28,8 @@ test -f tests/README.md || { echo "❌ Missing tests/README.md"; exit 1; }
 # Check pytest can discover tests
 echo "✅ Verifying pytest test discovery..."
 COLLECTED=$(poetry run pytest --collect-only tests/ -q | grep "collected" | awk '{print $1}')
-if [ "$COLLECTED" != "6" ]; then
-    echo "❌ Expected 6 tests, found $COLLECTED"
+if [ "$COLLECTED" != "12" ]; then
+    echo "❌ Expected 12 tests, found $COLLECTED"
     exit 1
 fi
 
@@ -77,7 +77,7 @@ echo "🎉 TEST SUITE VALIDATION COMPLETE"
 echo "================================"
 echo "✅ Poetry configuration valid"
 echo "✅ Test dependencies installed"
-echo "✅ 6 tests discovered successfully"
+echo "✅ 12 tests discovered successfully"
 echo "✅ No forbidden mock imports detected"
 echo "✅ pytest markers configured"
 echo "✅ Real-data testing principles enforced"
