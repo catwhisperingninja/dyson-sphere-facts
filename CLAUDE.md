@@ -9,9 +9,11 @@ This is a DSP (Dyson Sphere Program) Documentation & Physics Speculation Agent t
 ## Architecture
 
 **Deployment Setup:**
-- **Claudable** chatbot interface (Node.js) 
-- **MCP servers** run in Docker containers locally via Docker Desktop
-- **Communication** via direct HTTP calls to localhost MCP servers
+- **Development VM**: 100.86.15.93 (dev) - Current agent environment
+- **Docker Host**: 100.122.20.18 (osx-hostname-docker-desktop) - MCP servers
+- **Claudable** chatbot interface (Node.js) on dev VM
+- **MCP servers** run in Docker containers on Docker host via Tailscale
+- **Communication** via HTTP calls over Tailscale network (100.122.20.18:3001, 100.122.20.18:3003)
 - **[ORCHESTRATION: Future enhancement point for workflow management]**
 
 **Core Components:**
@@ -31,22 +33,32 @@ cd claudable && npm start
 edit claudable/config.json
 ```
 
-### MCP Server Management (on Docker host via SSH)
+### MCP Server Management (Tailscale Network)
 ```bash
-# Restart MCP servers
-docker restart mcp-ragdocs mcp-brave-search
+# Test Tailscale connectivity
+ping 100.122.20.18
 
-# Full recreate if needed
-docker-compose down && docker-compose up -d
+# Test MCP server endpoints
+curl http://100.122.20.18:3001/health  # RAG docs server
+curl http://100.122.20.18:3003/health  # Web search server
 
-# Test MCP server connectivity
-docker exec mcp-ragdocs-container npx @hannesrudolph/mcp-ragdocs search 'Critical Photons'
+# Note: Docker commands run on host 100.122.20.18
+# Access via SSH or direct console on Docker host
 ```
 
-### SSH Commands ([ORCHESTRATION: Future workflow management])
+### Network Configuration
 ```bash
-# Example MCP query via SSH Execute Command
-ssh docker-host "docker exec mcp-ragdocs-container npx @hannesrudolph/mcp-ragdocs search 'Critical Photons'"
+# Tailscale IPs (CRITICAL NETWORK TOPOLOGY)
+DEV_VM="100.86.15.93"          # Development environment
+DOCKER_HOST="100.122.20.18"    # Docker Desktop with MCP servers
+
+# MCP Endpoints
+RAG_ENDPOINT="http://100.122.20.18:3001"
+SEARCH_ENDPOINT="http://100.122.20.18:3003"
+
+# Test network connectivity
+curl $RAG_ENDPOINT/health
+curl $SEARCH_ENDPOINT/health
 ```
 
 ## File Structure

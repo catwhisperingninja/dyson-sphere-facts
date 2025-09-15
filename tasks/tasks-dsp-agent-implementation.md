@@ -2,6 +2,12 @@
 
 ## Architecture Overview
 
+### Network Topology (Tailscale)
+- **dev VM**: 100.86.15.93 - Development environment (current location)
+- **Docker Host**: 100.122.20.18 - Docker Desktop with MCP servers
+- **Communication**: HTTP calls via Tailscale network
+- **MCP Ports**: 3001 (ragdocs), 3003 (brave-search), 3002 (reserved)
+
 ### Repository Structure
 ```
 /github-projects/
@@ -12,8 +18,8 @@
 ### Integration Pattern
 - **Claudable** (external) communicates with this repo's MCP servers via HTTP
 - Configuration sharing via environment variables and config files
-- MCP servers deployed in Docker containers with localhost port mappings
-- Cross-repo setup documented for single-user deployment
+- MCP servers deployed in Docker containers on Tailscale host (100.122.20.18)
+- Cross-repo setup documented for single-user deployment via Tailscale network
 
 ## Relevant Files
 
@@ -52,20 +58,20 @@
   * Sub-tasks:
     - [ ] 1.1 Create `.env.example` with required variables (ANTHROPIC_API_KEY, BRAVE_API_KEY)
     - [ ] 1.2 Add simple README section: "Put Claudable repo next to this one, copy .env.example to .env"
-    - [ ] 1.3 Hardcode MCP server URLs in config (http://localhost:3001, http://localhost:3002)
+    - [ ] 1.3 Hardcode MCP server URLs in config (http://100.122.20.18:3001, http://100.122.20.18:3003)
 
 - [ ] 2.0 Deploy MCP Server Infrastructure
   * Status: **Ready to Execute**
   * Sub-tasks:
     - [ ] 2.1 Create basic `docker-compose.yml` with mcp-ragdocs and mcp-brave-search containers
-    - [ ] 2.2 Map ports 3001 and 3002, set restart: always
-    - [ ] 2.3 Test with `docker-compose up -d` and `curl localhost:3001/health`
+    - [ ] 2.2 Map ports 3001 and 3003, set restart: always
+    - [ ] 2.3 Test with `docker-compose up -d` and `curl 100.122.20.18:3001/health`
 
 - [ ] 3.0 Implement Agent Communication Architecture
   * Status: **Ready to Execute**
   * Sub-tasks:
     - [ ] 3.1 Copy API keys from .env to Claudable's config.json manually
-    - [ ] 3.2 Test basic HTTP call from Claudable to MCP server with curl
+    - [ ] 3.2 Test basic HTTP call from Claudable to MCP server via Tailscale: `curl 100.122.20.18:3001/health`
     - [ ] 3.3 Add console.log statements for debugging (no fancy logging)
 
 - [ ] 4.0 Create DSP Documentation Ingestion Pipeline
@@ -85,9 +91,9 @@
 - [ ] 6.0 Implement Minimal Testing Framework
   * Status: **Ready to Execute**
   * Sub-tasks:
-    - [ ] 6.1 Create `test.sh` script that runs 5 curl commands to test endpoints
-    - [ ] 6.2 Use existing test-agent to verify docs are indexed
-    - [ ] 6.3 Manual verification: ask 3 questions, check responses make sense
+    - [ ] 6.1 Create `test.sh` script that tests Tailscale endpoints (curl 100.122.20.18:3001/health)
+    - [ ] 6.2 Use existing test-agent to verify docs are indexed via Tailscale
+    - [ ] 6.3 Manual verification: ask 3 questions, check responses make sense over network
 
 - [ ] 7.0 Create MVP Deployment Process
   * Status: **Ready to Execute**

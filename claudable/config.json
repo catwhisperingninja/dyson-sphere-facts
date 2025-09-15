@@ -2,9 +2,9 @@
 	"name": "dsp-agent",
 	"version": "1.0.0",
 	"mcp_servers": {
-		"filesystem": "http://localhost:3001",
-		"rag": "http://localhost:3002",
-		"search": "http://localhost:3003"
+		"filesystem": "http://100.122.20.18:3001",
+		"rag": "http://100.122.20.18:3001",
+		"search": "http://100.122.20.18:3003"
 	},
 	"tools": {
 		"context7": true,
