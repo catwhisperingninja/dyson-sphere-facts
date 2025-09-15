@@ -1,24 +1,26 @@
 # Task List: DSP Documentation Agent Implementation with Claudable
 
-> **OBSOLETE HEADER**: This task list was originally written for n8n implementation but the actual working system uses Claudable. Tasks remain as historical reference and future enhancement planning.
-
 ## Relevant Files
 
 ### Docker Desktop & Configuration
+
 - `claudable/config.json` - Claudable configuration and MCP server endpoints
 - `docker/docker-compose.yml` - Docker setup for MCP servers
 - `docker/.env` - API credentials and environment variables
 
 ### Documentation & Data
+
 - `docs/dsp-wiki/` - Directory for scraped DSP documentation
 - `docs/prompts/system-prompt.md` - Agent system prompt and personality
 - `docs/test-questions.md` - Validation questions for testing
 
 ### MCP Server Configurations
+
 - `mcp-configs/ragdocs-config.json` - MCP RAG server configuration
 - `mcp-configs/brave-search-config.json` - Brave Search MCP configuration
 
 ### Scripts & Utilities
+
 - `scripts/scrape-dsp-docs.js` - Script to gather DSP documentation
 - `scripts/test-agent.js` - Testing script for agent responses
 - `scripts/backup-workflow.sh` - Backup n8n workflows
@@ -33,15 +35,18 @@
 ## Tasks
 
 - [x] 1.0 Environment Setup & Claudable Installation (COMPLETED)
+
   - [x] 1.1 Install Claudable dependencies using `cd claudable && npm install`
   - [x] 1.2 Configure Claudable config.json with MCP server endpoints
   - [x] 1.3 Set up Docker Desktop for local MCP server hosting
   - [x] 1.4 Test HTTP connectivity to MCP servers on localhost
-  - [x] 1.5 Create environment variables file for API keys (Anthropic, OpenAI, Brave)
+  - [x] 1.5 Create environment variables file for API keys (Anthropic, OpenAI,
+        Brave)
   - [x] 1.6 Configure Claudable for Claude 3.5 Sonnet integration
   - [x] 1.7 Verify MCP server port mappings (3002, 3003)
 
 - [ ] 2.0 MCP Server Setup & Configuration
+
   - [ ] 2.1 SSH to Docker host and pull MCP server images
   - [ ] 2.2 Create Docker container for mcp-ragdocs with restart policy
   - [ ] 2.3 Create Docker container for Brave Search MCP server
@@ -52,6 +57,7 @@
   - [ ] 2.8 Document MCP server endpoints and connection strings
 
 - [x] 3.0 Claudable Interface Development (BASIC VERSION COMPLETE)
+
   - [x] 3.1 Configure Claudable agent personality and capabilities
   - [x] 3.2 Set up HTTP interface for user interactions
   - [x] 3.3 [ORCHESTRATION: Future enhancement - Web UI improvements]
@@ -65,6 +71,7 @@
   - [x] 3.11 Test interface with simple queries
 
 - [ ] 4.0 Documentation Ingestion & RAG Setup
+
   - [ ] 4.1 Create documentation directory structure on Docker host
   - [ ] 4.2 Write scraper for dsp-wiki.com main pages
   - [ ] 4.3 Scrape DSP Fandom wiki essential pages
@@ -77,6 +84,7 @@
   - [ ] 4.10 Document ingestion process for future updates
 
 - [ ] 5.0 Testing & Validation
+
   - [ ] 5.1 Test game mechanics questions ("How do Critical Photons work?")
   - [ ] 5.2 Test physics speculation ("Could we build a real Dyson sphere?")
   - [ ] 5.3 Test hybrid questions ("Compare game antimatter to real physics")
@@ -102,6 +110,8 @@
 
 ---
 
-These tasks were originally generated for n8n implementation. The actual working system uses Claudable with direct HTTP calls to Docker MCP servers.
+These tasks were originally generated for n8n implementation. The actual working
+system uses Claudable with direct HTTP calls to Docker MCP servers.
 
-**Current Status**: Basic Claudable + Docker MCP system is operational. Remaining tasks marked as future enhancements.
+**Current Status**: Basic Claudable + Docker MCP system is operational.
+Remaining tasks marked as future enhancements.
