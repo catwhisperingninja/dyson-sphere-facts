@@ -486,19 +486,44 @@ networks:
 
 ## AGENT INSTRUCTIONS
 
+### **MANDATORY FIRST-MINUTE PROJECT SCAN**
+BEFORE writing any tests, perform this scan:
+
+```bash
+# 1. Detect dependency management
+ls pyproject.toml package.json requirements.txt 2>/dev/null
+
+# 2. Use appropriate tool
+if [ -f "pyproject.toml" ]; then
+    # POETRY PROJECT - Use poetry for everything
+    poetry install
+    poetry run pytest
+    poetry run python script.py
+elif [ -f "package.json" ]; then
+    # NODE PROJECT - Use npm/yarn
+    npm install
+    npm test
+fi
+
+# 3. Scan for project rules
+cat CLAUDE.md AGENT.md .cursor/rules/* 2>/dev/null | grep -E "(rule|policy|standard|must|never)"
+```
+
+### **CORE TESTING PRINCIPLES**
 When writing tests:
 1. NEVER create fake data
-2. NEVER stub responses  
+2. NEVER stub responses
 3. NEVER mock dependencies
 4. ALWAYS call real services
 5. ALWAYS use real databases
 6. ALWAYS handle real errors
 7. ALWAYS respect rate limits
 8. ALWAYS clean up real resources
-9. IF caching needed, MUST have deduplication and staleness checks
-10. ALWAYS review CodeRabbit comments on latest commit
-11. ALWAYS document high-impact issues instead of auto-fixing
-12. ALWAYS use MCP for external data when available
+9. ALWAYS scan for project dependency management FIRST
+10. IF caching needed, MUST have deduplication and staleness checks
+11. ALWAYS review CodeRabbit comments on latest commit
+12. ALWAYS document high-impact issues instead of auto-fixing
+13. ALWAYS use MCP for external data when available
 
 **Remember: If you can't test it with real data, you can't trust it in production**
 
@@ -700,6 +725,14 @@ CODEBASE_METRICS = {
 - ✅ API quotas never exceeded
 - ✅ All tests use real data
 - ✅ CodeRabbit approves all PRs
+
+**VALIDATED SUCCESS PATTERN FROM DSP PROJECT:**
+- ✅ 12/12 tests passing with strict no-mock policy
+- ✅ Real Docker container integration testing
+- ✅ Live HTTP endpoint validation
+- ✅ Actual filesystem operations
+- ✅ Poetry dependency management detection
+- ✅ User feedback integration protocol working
 
 ## AGENT MEMORY FILE
 

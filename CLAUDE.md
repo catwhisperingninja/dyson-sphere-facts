@@ -8,13 +8,19 @@ This is a DSP (Dyson Sphere Program) Documentation & Physics Speculation Agent t
 
 ## Architecture
 
-**Deployment Setup:**
-- **Development VM**: 100.86.15.93 (dev) - Current agent environment
-- **Docker Host**: 100.122.20.18 (osx-hostname-docker-desktop) - MCP servers
-- **Claudable** chatbot interface (Node.js) on dev VM
-- **MCP servers** run in Docker containers on Docker host via Tailscale
-- **Communication** via HTTP calls over Tailscale network (100.122.20.18:3001, 100.122.20.18:3003)
+**Local Docker Desktop Setup:**
+- **All services** run locally on Docker Desktop (migrated from distributed Tailscale)
+- **Claudable** chatbot interface (Node.js) on localhost:3001
+- **MCP servers** run in Docker containers with HTTP bridge wrappers
+- **Communication** via HTTP calls to localhost ports
 - **[ORCHESTRATION: Future enhancement point for workflow management]**
+
+**Service Port Assignments (CANONICAL REFERENCE):**
+- Claudable Interface: `localhost:3001`
+- MCP RAG Server: `localhost:3002`
+- MCP Search Server: `localhost:3004`
+- Qdrant Database: `localhost:6333`
+- Qdrant Admin: `localhost:6334`
 
 **Core Components:**
 - Claudable chatbot for user interface and agent coordination
@@ -33,32 +39,29 @@ cd claudable && npm start
 edit claudable/config.json
 ```
 
-### MCP Server Management (Tailscale Network)
+### MCP Server Management (Local Docker Desktop)
 ```bash
-# Test Tailscale connectivity
-ping 100.122.20.18
-
 # Test MCP server endpoints
-curl http://100.122.20.18:3001/health  # RAG docs server
-curl http://100.122.20.18:3003/health  # Web search server
+curl http://localhost:3002/health  # RAG docs server
+curl http://localhost:3004/health  # Web search server
 
-# Note: Docker commands run on host 100.122.20.18
-# Access via SSH or direct console on Docker host
+# Docker container management
+docker ps --filter "name=dsp"
+docker-compose -f docker/docker-compose.yml logs -f
 ```
 
 ### Network Configuration
 ```bash
-# Tailscale IPs (CRITICAL NETWORK TOPOLOGY)
-DEV_VM="100.86.15.93"          # Development environment
-DOCKER_HOST="100.122.20.18"    # Docker Desktop with MCP servers
-
-# MCP Endpoints
-RAG_ENDPOINT="http://100.122.20.18:3001"
-SEARCH_ENDPOINT="http://100.122.20.18:3003"
+# Local service endpoints (CANONICAL REFERENCE)
+CLAUDABLE_ENDPOINT="http://localhost:3001"
+RAG_ENDPOINT="http://localhost:3002"
+SEARCH_ENDPOINT="http://localhost:3004"
+QDRANT_ENDPOINT="http://localhost:6333"
 
 # Test network connectivity
 curl $RAG_ENDPOINT/health
 curl $SEARCH_ENDPOINT/health
+curl $QDRANT_ENDPOINT/
 ```
 
 ## File Structure
@@ -90,6 +93,50 @@ The agent blends game mechanics with real physics speculation in a fun, engaging
 
 ## Development Workflow
 
+### **MANDATORY FIRST-MINUTE PROJECT SCAN**
+Before any work, ALWAYS perform this scan sequence:
+
+```bash
+# 1. Check dependency management approach
+ls pyproject.toml package.json requirements.txt 2>/dev/null
+
+# 2. Scan for project rules
+ls CLAUDE.md AGENT.md .cursor/rules/ 2>/dev/null
+
+# 3. If pyproject.toml exists - USE POETRY EXCLUSIVELY
+# 4. If package.json exists - USE NPM/YARN
+# 5. If requirements.txt only - USE PIP
+
+# Example: Poetry detection and usage
+if [ -f "pyproject.toml" ]; then
+    echo "✓ Poetry project detected - using poetry for all operations"
+    poetry install  # Not pip install
+    poetry run pytest  # Not python -m pytest
+    poetry run python script.py  # Not python script.py
+fi
+```
+
+### **USER FEEDBACK INTEGRATION PROTOCOL**
+When user provides methodology corrections (e.g., "we always use poetry see proj rules"):
+
+1. **IMMEDIATE PIVOT**: Stop current approach entirely, don't incrementally adjust
+2. **DOCTRINE UPDATE**: Treat as fundamental methodology gap, not preference
+3. **TOOL CHAIN REVERIFICATION**: Re-validate all selected tools against corrected approach
+4. **SESSION RESTART**: Apply corrected methodology to all remaining work
+
+**Critical Pattern**: User interruptions about project rules indicate missing foundational knowledge, requiring immediate comprehensive adjustment.
+
+### **INFRASTRUCTURE STATE VERIFICATION PROTOCOL**
+Before making any configuration assumptions:
+
+1. **VERIFY ACTUAL STATE**: Use `docker ps`, `curl` tests, or direct inspection
+2. **CHECK CANONICAL REFERENCES**: Consult port mappings and service endpoints above
+3. **DOCUMENT DISCREPANCIES**: If config doesn't match reality, update config first
+4. **VALIDATE CROSS-REFERENCES**: Ensure all files (tests, docs, configs) use consistent ports/paths
+
+**Critical Pattern**: Infrastructure assumptions lead to integration failures. Always verify before configuring.
+
+### **CORE WORKFLOW PHASES**
 1. **[WORKFLOW: Visual vs code-based approach]** - Future workflow orchestration system
 2. **MCP Server Setup** - Deploy and configure via Docker on separate host
 3. **SSH Integration** - Use SSH Execute Command nodes to communicate with MCP servers
