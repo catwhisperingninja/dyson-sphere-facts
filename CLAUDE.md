@@ -91,3 +91,4 @@ Since MCP servers require frequent restarts:
 - [RESILIENCE: Auto-restart strategy needed] - Implement health checks in future workflow system
 - Configure auto-restart policies for Docker containers
 - Keep backup/restore procedures for workflows and documentation
+- maintain persistent with specialized codebase agents. Everytime user hits esc, default agent returns. Persistence is required.
