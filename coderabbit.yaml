@@ -179,6 +179,7 @@ reviews:
       - "audit-analysis-test"
       - "audit-analysis-test-suite"
       - "audit-analysis-test-suite-audit"
+      - "*.md"
     drafts: false
     base_branches:
       - "main"
