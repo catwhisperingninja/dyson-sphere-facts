@@ -8,11 +8,6 @@ AI agent for Dyson Sphere Program game mechanics + real physics speculation.
 - **Docker Desktop** - MCP servers (Qdrant, RAG, Search)
 - **MCP Inspector** - Server management
 
-> spin up dyson codebase arch agent again. lacking persistence, the agent wil
-lose ALL context and it becomes a nightmare. 90% of the agent will make random
-edits non understanding a unique purpose will come back. This has been a
-problem: Proceed but DO NOT MODIFY. Conitnue to analyzd
-
 ## Quick Start
 
 ```bash
