@@ -4,7 +4,7 @@
 
 ### 🔍 System Health Check
 ```bash
-# One-command system validation
+# Ofne-command system validation
 ./docker/validate-infrastructure.sh
 
 # Quick status check
