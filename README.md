@@ -1,3 +1,9 @@
+> ⚠️ **SATIRE / HUMOR** — This repository is satirical and not a scientific resource.  
+> The content is intended for entertainment and creative exploration only.
+
+### Note on Intent
+This repository was created as a playful, speculative project. Any references to scientific concepts are illustrative or humorous and should not be taken as factual. For serious research notes, please see my other repositories or contact me via my GitHub profile.
+
 # DSP Documentation Agent
 
 AI agent for Dyson Sphere Program game mechanics + real physics speculation.
