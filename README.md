@@ -6,6 +6,10 @@ This repository was created as a playful, speculative project. Any references to
 
 # DSP Documentation Agent
 
+This repo is intended to be *satirical* and *fun*.
+
+No real physics here. 
+
 AI agent for Dyson Sphere Program game mechanics + real physics speculation.
 
 ## Stack

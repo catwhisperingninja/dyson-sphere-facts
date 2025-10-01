@@ -45,11 +45,11 @@ sinon.stub()  # ❌
 async def test_real_api_response():
     """Test with ACTUAL API call - no mocks"""
     import httpx
-    
+
     async with httpx.AsyncClient() as client:
         # Real API call to production or staging
         response = await client.get("https://api.actual-service.com/v1/data")
-        
+
         # Test real response structure
         assert response.status_code == 200
         data = response.json()
@@ -69,11 +69,11 @@ async def test_database_operations():
         database='test_db',
         user='test_user'
     )
-    
+
     # Real query, real data
     result = await conn.fetch("SELECT * FROM users WHERE active = true")
     assert len(result) > 0  # Real records
-    
+
     await conn.close()
 ```
 
@@ -85,16 +85,16 @@ def test_file_processing():
     """Test with REAL files on disk"""
     import tempfile
     import os
-    
+
     # Create real temp file
     with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
         f.write("actual test content")
         temp_path = f.name
-    
+
     # Process real file
     result = process_file(temp_path)
     assert result.success
-    
+
     # Clean up real file
     os.unlink(temp_path)
 ```
@@ -108,13 +108,13 @@ async def test_service_integration():
     # Start real service instances
     service_a = await ServiceA.start(port=8001)
     service_b = await ServiceB.start(port=8002)
-    
+
     # Real request between services
     response = await service_a.call_service_b("/real-endpoint")
-    
+
     assert response.status == "success"
     assert response.data is not None
-    
+
     await service_a.stop()
     await service_b.stop()
 ```
@@ -126,13 +126,13 @@ async def test_service_integration():
 async def test_real_error_handling():
     """Test how system handles REAL failures"""
     import httpx
-    
+
     # Call with invalid parameters to trigger real API error
     async with httpx.AsyncClient() as client:
         response = await client.get(
             "https://api.service.com/v1/user/99999999"  # Non-existent user
         )
-        
+
         assert response.status_code == 404
         error = response.json()
         assert error['error'] == 'User not found'  # Real error message
@@ -149,13 +149,13 @@ async def test_real_authentication():
         username="test_user_real",
         password=os.getenv("TEST_USER_PASSWORD")  # Real password
     )
-    
+
     token = auth_response.token
-    
+
     # Use real token for protected endpoint
     headers = {"Authorization": f"Bearer {token}"}
     response = await client.get("/protected", headers=headers)
-    
+
     assert response.status_code == 200
 ```
 
@@ -166,16 +166,16 @@ async def test_real_authentication():
 async def test_rate_limit_handling():
     """Test against REAL rate limits"""
     import asyncio
-    
+
     responses = []
     for i in range(100):  # Trigger real rate limit
         response = await call_api("/endpoint")
         responses.append(response)
-        
+
         if response.status_code == 429:  # Real rate limit hit
             retry_after = int(response.headers.get('Retry-After', 1))
             await asyncio.sleep(retry_after)  # Real wait time
-    
+
     # Verify rate limit was actually encountered
     rate_limited = [r for r in responses if r.status_code == 429]
     assert len(rate_limited) > 0
@@ -187,7 +187,7 @@ async def test_rate_limit_handling():
 # Organize by real data source
 tests/
 ├── api_integration/      # Real API tests
-├── database_integration/ # Real DB tests  
+├── database_integration/ # Real DB tests
 ├── service_integration/  # Real service tests
 ├── filesystem_tests/     # Real file operations
 ├── network_tests/        # Real network conditions
@@ -199,13 +199,13 @@ tests/
 ```yaml
 # test_config.yml - Real endpoints only
 test:
-  api_base_url: "https://staging-api.company.com"  # Real staging
-  database_url: "postgresql://test-db.company.com/testdb"  # Real test DB
-  redis_url: "redis://test-redis.company.com:6379"  # Real Redis
-  
+  api_base_url: "https://staging-api.company.com" # Real staging
+  database_url: "postgresql://test-db.company.com/testdb" # Real test DB
+  redis_url: "redis://test-redis.company.com:6379" # Real Redis
+
 production_replica:
-  api_base_url: "https://api.company.com"  # Real production (read-only)
-  database_url: "postgresql://read-replica.company.com/prod"  # Read replica
+  api_base_url: "https://api.company.com" # Real production (read-only)
+  database_url: "postgresql://read-replica.company.com/prod" # Read replica
 ```
 
 ## CI/CD CONFIGURATION
@@ -219,30 +219,28 @@ jobs:
   real-tests:
     runs-on: ubuntu-latest
     services:
-      postgres:  # Real database container
+      postgres: # Real database container
         image: postgres:14
         env:
           POSTGRES_PASSWORD: real_password
         options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-      
-      redis:  # Real Redis container
+          --health-cmd pg_isready --health-interval 10s
+
+      redis: # Real Redis container
         image: redis:7
         options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-    
+          --health-cmd "redis-cli ping" --health-interval 10s
+
     steps:
       - uses: actions/checkout@v2
-      
+
       - name: Run Real Integration Tests
         env:
           API_KEY: ${{ secrets.REAL_API_KEY }}
           DB_CONNECTION: ${{ secrets.REAL_DB_CONNECTION }}
         run: |
           pytest tests/ -v --no-mock-allowed
-        timeout-minutes: 30  # Allow time for real operations
+        timeout-minutes: 30 # Allow time for real operations
 ```
 
 ## VERIFICATION CHECKLIST
@@ -260,7 +258,8 @@ Before ANY test is accepted:
 
 ## SUCCESS CRITERIA
 
-1. **No Mock Detection**: `grep -r "mock\|Mock\|patch\|stub" tests/` returns NOTHING
+1. **No Mock Detection**: `grep -r "mock\|Mock\|patch\|stub" tests/` returns
+   NOTHING
 2. **Real Endpoints**: All HTTP calls point to actual URLs
 3. **Fresh Data**: Each test run gets different timestamps/IDs
 4. **Real Failures**: Tests can actually fail from real issues
@@ -279,7 +278,7 @@ class StrictCache:
         self.cache = {}
         self.timestamps = {}
         self.max_age_seconds = 30  # SHORT TTL ONLY
-    
+
     def get(self, key):
         """MUST CHECK: Is data fresh? Is it duplicated?"""
         # DEDUPLICATION CHECK
@@ -289,19 +288,19 @@ class StrictCache:
                 del self.cache[key]  # DELETE STALE DATA
                 del self.timestamps[key]
                 return None  # FORCE FRESH FETCH
-            
+
             # LOG CACHE HIT FOR MONITORING
             logger.warning(f"CACHE HIT: {key} - age: {time.time() - self.timestamps[key]}s")
             return self.cache[key]
         return None
-    
+
     def set(self, key, value):
         """MUST VALIDATE: No duplicates, timestamp everything"""
         # CHECK FOR DUPLICATE DATA
         for existing_key, existing_value in self.cache.items():
             if existing_value == value and existing_key != key:
                 logger.error(f"DUPLICATE DATA DETECTED: {key} matches {existing_key}")
-                
+
         self.cache[key] = value
         self.timestamps[key] = time.time()
 
@@ -314,8 +313,9 @@ class StrictCache:
 ### NO CACHE PROMISE = NO CACHE ALLOWED
 
 If you cannot guarantee:
+
 - ✅ Deduplication checks on every write
-- ✅ Timestamp validation on every read  
+- ✅ Timestamp validation on every read
 - ✅ Automatic expiration of stale data
 - ✅ Clear documentation at cache points
 - ✅ Easy to find and remove
@@ -332,11 +332,11 @@ reviews:
   auto_review:
     enabled: true
     level: "comprehensive"
-    
+
   unresolved_comments:
     track: true
-    assume_latest_commit: true  # CRITICAL: Only latest commit matters
-    
+    assume_latest_commit: true # CRITICAL: Only latest commit matters
+
   impact_documentation:
     high_severity_requires: "IMPACT.md"
 ```
@@ -348,15 +348,15 @@ reviews:
 
 def handle_coderabbit_comment(comment):
     """Process unresolved CodeRabbit comments"""
-    
+
     # ASSUMPTION: Comment is on MOST RECENT COMMIT ONLY
     if comment.commit != latest_commit:
         return  # Skip old comments
-    
+
     if comment.severity == "HIGH" and comment.unresolved:
         # DO NOT AUTO-FIX - DOCUMENT IMPACT
         impact_file = f"{date}_{commit_id[:7]}_{branch}_IMPACT.md"
-        
+
         with open(impact_file, 'w') as f:
             f.write(f"""# HIGH IMPACT ISSUE DETECTED
 
@@ -374,7 +374,7 @@ def handle_coderabbit_comment(comment):
 Manual review needed before proceeding.
 DO NOT PERFORM automated fix.
 """)
-        
+
         raise Exception(f"High impact issue documented in {impact_file}")
 ```
 
@@ -390,29 +390,29 @@ import asyncio
 
 class MCPInterface:
     """Standard MCP client for Cursor-connected servers"""
-    
+
     def __init__(self):
         # Cursor MCP servers (auto-discovered)
         self.cursor_servers = self._discover_cursor_servers()
-        
+
         # Docker Desktop MCP servers on LAN
         self.docker_servers = self._discover_docker_servers()
-        
+
     async def call_tool(self, server_name: str, tool_name: str, params: dict):
         """Call any MCP tool through Cursor"""
-        
+
         # Try Cursor-integrated servers first
         if server_name in self.cursor_servers:
             client = self.cursor_servers[server_name]
             return await client.call_tool(tool_name, params)
-        
+
         # Fallback to Docker Desktop servers
         if server_name in self.docker_servers:
             client = self.docker_servers[server_name]
             return await client.call_tool(tool_name, params)
-        
+
         raise ValueError(f"MCP server {server_name} not found")
-    
+
     def _discover_cursor_servers(self):
         """Auto-discover Cursor MCP integrations"""
         # Cursor provides: Context7, Sequoia AI, repo connections
@@ -421,7 +421,7 @@ class MCPInterface:
             'sequoia': Client('cursor://sequoia'),
             'repo': Client('cursor://current-repo')
         }
-    
+
     def _discover_docker_servers(self):
         """Discover Docker Desktop MCP servers on LAN"""
         # PLACEHOLDER: Add exact Docker MCP discovery here
@@ -429,7 +429,7 @@ class MCPInterface:
         # - Service discovery on local network
         # - Fixed ports (e.g., 8080-8099)
         # - mDNS/Bonjour names
-        
+
         # TODO: Replace with actual Docker MCP discovery
         return {
             # 'service_name': Client('docker://hostname:port')
@@ -439,17 +439,17 @@ class MCPInterface:
 async def test_with_mcp():
     """Test using real MCP servers"""
     mcp = MCPInterface()
-    
+
     # Call Context7 for documentation
     docs = await mcp.call_tool('context7', 'get_docs', {
         'query': 'testing best practices'
     })
-    
+
     # Call Docker MCP service
     result = await mcp.call_tool('docker_service', 'process', {
         'data': 'real_input'
     })
-    
+
     assert result is not None
 ```
 
@@ -457,7 +457,7 @@ async def test_with_mcp():
 
 ```yaml
 # docker-compose.mcp.yml - MCP servers on LAN
-version: '3.8'
+version: "3.8"
 
 services:
   mcp_server_1:
@@ -469,7 +469,7 @@ services:
       - MCP_DISCOVERY=enabled
     networks:
       - mcp_lan
-      
+
   # TODO: Add specific MCP containers here
   # Each service should expose:
   # - Discovery endpoint
@@ -481,12 +481,13 @@ networks:
     driver: bridge
     ipam:
       config:
-        - subnet: 172.20.0.0/16  # Fixed subnet for MCP
+        - subnet: 172.20.0.0/16 # Fixed subnet for MCP
 ```
 
 ## AGENT INSTRUCTIONS
 
 ### **MANDATORY FIRST-MINUTE PROJECT SCAN**
+
 BEFORE writing any tests, perform this scan:
 
 ```bash
@@ -510,7 +511,9 @@ cat CLAUDE.md AGENT.md .cursor/rules/* 2>/dev/null | grep -E "(rule|policy|stand
 ```
 
 ### **CORE TESTING PRINCIPLES**
+
 When writing tests:
+
 1. NEVER create fake data
 2. NEVER stub responses
 3. NEVER mock dependencies
@@ -525,7 +528,8 @@ When writing tests:
 12. ALWAYS document high-impact issues instead of auto-fixing
 13. ALWAYS use MCP for external data when available
 
-**Remember: If you can't test it with real data, you can't trust it in production**
+**Remember: If you can't test it with real data, you can't trust it in
+production**
 
 ## CODE SIMPLIFICATION PRIORITIES
 
@@ -606,7 +610,7 @@ async def get_external_data():
     """Standard pattern for external APIs"""
     # 1. Rate limit ALWAYS
     await rate_limiter.acquire()
-    
+
     # 2. Try with timeout
     try:
         result = await asyncio.wait_for(
@@ -616,11 +620,11 @@ async def get_external_data():
     except asyncio.TimeoutError:
         # 3. NEVER mock on failure
         raise DataUnavailableError("API timeout")
-    
+
     # 4. Validate response
     if not result or 'error' in result:
         raise DataUnavailableError(f"Invalid response: {result}")
-    
+
     # 5. Type consistency
     return Decimal(str(result['value']))
 ```
@@ -635,11 +639,11 @@ active_issues:
   - module: api_client
     issue: intermittent_timeout
     severity: medium
-    
-  - module: type_system  
+
+  - module: type_system
     issue: mixed_numeric_types
     severity: high
-    
+
   - module: imports
     issue: circular_dependencies
     severity: critical
@@ -656,26 +660,29 @@ active_issues:
 ## AGENT DECISION FRAMEWORK
 
 ### AUTO-FIX WITH CURSOR
+
 - Import reordering
-- Type hint additions  
+- Type hint additions
 - Docstring updates
 - Whitespace/formatting
 
 ### REPORT FOR REVIEW
+
 - API signature changes
 - Module restructuring
 - Core logic changes
 - Database schema updates
 
 ### EMERGENCY ALERT
+
 ```python
 # Immediate escalation required:
 if "mock" in code or "fake" in code:
     alert("MOCK DATA DETECTED")
-    
+
 if api_calls > rate_limit:
     alert("QUOTA VIOLATION IMMINENT")
-    
+
 if "eval(" in code or "exec(" in code:
     alert("SECURITY VULNERABILITY")
 ```
@@ -703,20 +710,26 @@ CODEBASE_METRICS = {
 
 ```markdown
 # docs/patterns.md - Agent maintains this
+
 ## Discovered Patterns
+
 - API X returns null on timeout (not error)
-- Service Y needs 2-second delay between calls
-- Database connection pool max is 50
+
+## SUCCESS CRITERIA (PROJECT HEALTH)
+
+**Project is MVP-ready when:**
 
 ## API Limits (observed)
+
 - Service A: 100 req/min
 - Service B: 1000 req/hour
 - Database: 50 concurrent connections
 ```
 
-## SUCCESS CRITERIA
+## MVP-READY
 
 **Project is MVP-ready when:**
+
 - ✅ Zero import errors on startup
 - ✅ Type checker passes strict mode
 - ✅ All APIs return valid typed data
@@ -727,6 +740,7 @@ CODEBASE_METRICS = {
 - ✅ CodeRabbit approves all PRs
 
 **VALIDATED SUCCESS PATTERN FROM DSP PROJECT:**
+
 - ✅ 12/12 tests passing with strict no-mock policy
 - ✅ Real Docker container integration testing
 - ✅ Live HTTP endpoint validation
@@ -744,18 +758,18 @@ issues_found:
     issue: mixed_types
     severity: high
     line_numbers: [45, 67, 89]
-    
+
 patterns_learned:
   - api_returns_none_on_timeout
   - retry_needed_after_429
   - connection_pool_exhaustion_at_50
-  
+
 fixed_count: 127
 pending_fixes:
   - standardize_decimal_usage
   - consolidate_duplicate_functions
   - remove_circular_imports
-  
+
 coderabbit_unresolved: 3
 high_impact_documented: 2
 ```

@@ -3,25 +3,32 @@
 ## Quick Diagnosis
 
 ### 🔍 System Health Check
-```bash
+
 # One-command system validation
+
+# One-command system validation
+
 ./docker/validate-infrastructure.sh
 
 # Quick status check
-docker ps --filter "name=dsp" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+
+docker ps --filter "name=dsp" --format "table
+{{.Names}}\t{{.Status}}\t{{.Ports}}"
 
 # Test all endpoints
-curl http://localhost:3001/health  # Agent
-curl http://localhost:3002/health  # RAG
-curl http://localhost:3004/health  # Search
-curl http://localhost:6333/        # Qdrant
-```
+
+curl http://localhost:3001/health # Agent curl http://localhost:3002/health #
+RAG curl http://localhost:3004/health # Search curl http://localhost:6333/ #
+Qdrant
+
+````
 
 ## Common Issues & Solutions
 
 ### 🐳 Docker Container Issues
 
 #### Problem: Containers Not Starting
+
 ```bash
 # Symptoms
 docker ps --filter "name=dsp" | wc -l    # Returns less than 3
@@ -34,9 +41,10 @@ docker-compose -f docker/docker-compose.yml logs
 docker system prune -f                    # Clean Docker cache
 docker-compose -f docker/docker-compose.yml down --volumes && \
 docker-compose -f docker/docker-compose.yml up -d
-```
+````
 
 #### Problem: Container Memory Issues
+
 ```bash
 # Symptoms
 Container keeps restarting, high memory usage
@@ -51,6 +59,7 @@ docker-compose -f docker/docker-compose.yml restart
 ```
 
 #### Problem: Qdrant Storage Corruption
+
 ```bash
 # Symptoms
 dsp-qdrant fails to start, storage errors in logs
@@ -68,6 +77,7 @@ docker-compose -f docker/docker-compose.yml restart qdrant
 ### 🌐 Network & Port Issues
 
 #### Problem: Port Already in Use
+
 ```bash
 # Symptoms
 "Port already allocated" error during startup
@@ -85,6 +95,7 @@ kill $(lsof -ti :3001)    # Replace 3001 with conflicting port
 ```
 
 #### Problem: Cannot Connect to MCP Servers
+
 ```bash
 # Symptoms
 curl requests to localhost:3002/3004 timeout or fail
@@ -103,6 +114,7 @@ docker-compose -f docker/docker-compose.yml restart mcp-ragdocs mcp-web-search
 ### 🔑 API Key & Authentication Issues
 
 #### Problem: OpenAI API Errors
+
 ```bash
 # Symptoms
 "Invalid API key" or "Rate limit exceeded" in logs
@@ -119,6 +131,7 @@ export OPENAI_API_KEY="sk-your-key"
 ```
 
 #### Problem: Brave Search API Issues
+
 ```bash
 # Symptoms
 Web search requests fail, search functionality broken
@@ -136,6 +149,7 @@ docker-compose -f docker/docker-compose.yml restart mcp-web-search
 ### 🤖 Claudable Interface Issues
 
 #### Problem: Claudable Won't Start
+
 ```bash
 # Symptoms
 Cannot access http://localhost:3001
@@ -153,6 +167,7 @@ rm -rf node_modules && npm install  # Clean reinstall
 ```
 
 #### Problem: Claudable Configuration Errors
+
 ```bash
 # Symptoms
 "Cannot connect to MCP servers" errors in Claudable
@@ -171,6 +186,7 @@ curl http://localhost:3002/health    # Test MCP connectivity
 ### 📚 RAG & Search Functionality Issues
 
 #### Problem: No Search Results from RAG
+
 ```bash
 # Symptoms
 RAG searches return empty results
@@ -187,6 +203,7 @@ curl http://localhost:6333/collections/documents/points/count
 ```
 
 #### Problem: Web Search Not Working
+
 ```bash
 # Symptoms
 Physics searches fail or return no results
@@ -207,6 +224,7 @@ docker exec dsp-mcp-search curl https://api.search.brave.com/
 ### 🐌 Slow Response Times
 
 #### Problem: Agent Responses Take Too Long
+
 ```bash
 # Diagnosis
 time curl -X POST http://localhost:3001/chat \
@@ -226,6 +244,7 @@ docker stats --filter "name=dsp"
 ### 💾 Storage Issues
 
 #### Problem: Docker Disk Space
+
 ```bash
 # Diagnosis
 docker system df
@@ -240,6 +259,7 @@ docker volume prune -f                    # Clean volumes
 ## Emergency Recovery
 
 ### 🚨 Complete System Reset
+
 ```bash
 # Nuclear option - resets everything
 docker-compose -f docker/docker-compose.yml down --volumes --rmi all
@@ -251,6 +271,7 @@ docker system prune -af
 ### 🔧 Component-by-Component Recovery
 
 #### 1. Reset Qdrant Only
+
 ```bash
 docker-compose -f docker/docker-compose.yml stop qdrant
 rm -rf docker/qdrant_storage/*
@@ -258,11 +279,13 @@ docker-compose -f docker/docker-compose.yml up -d qdrant
 ```
 
 #### 2. Reset MCP Servers Only
+
 ```bash
 docker-compose -f docker/docker-compose.yml restart mcp-ragdocs mcp-web-search
 ```
 
 #### 3. Reset Claudable Only
+
 ```bash
 ./restart.sh --claudable
 ```
@@ -270,6 +293,7 @@ docker-compose -f docker/docker-compose.yml restart mcp-ragdocs mcp-web-search
 ## Monitoring & Maintenance
 
 ### 📊 Health Monitoring
+
 ```bash
 # Add to crontab for automated monitoring
 # */5 * * * * /path/to/dyson-sphere-facts/docker/validate-infrastructure.sh
@@ -279,6 +303,7 @@ watch 'docker ps --filter "name=dsp" --format "table {{.Names}}\t{{.Status}}"'
 ```
 
 ### 🔄 Preventive Maintenance
+
 ```bash
 # Weekly cleanup
 docker-compose -f docker/docker-compose.yml restart
@@ -291,6 +316,7 @@ docker system prune -f
 ## Getting Help
 
 ### 📋 Collecting Debug Information
+
 ```bash
 # Generate comprehensive debug report
 echo "=== System Info ===" > debug-report.txt
@@ -313,6 +339,7 @@ echo "=== Validation Output ===" >> debug-report.txt
 ```
 
 ### 🔍 Log Analysis
+
 ```bash
 # View specific service logs
 docker-compose -f docker/docker-compose.yml logs -f qdrant
@@ -326,4 +353,5 @@ docker-compose -f docker/docker-compose.yml logs | grep -i fail
 
 ---
 
-**Remember**: Most issues can be resolved with `./restart.sh --all`. When in doubt, restart everything and run the validation script.
+**Remember**: Most issues can be resolved with `./restart.sh --all`. When in
+doubt, restart everything and run the validation script.
